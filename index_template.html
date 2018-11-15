@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lab 5: HTML5</title> 
+<style>
+.box{
+  width:660px;
+  height:125px;
+  margin-top: auto;
+}
+canvas{
+  border:1px solid #fff;
+  margin:10px 0 0 0;
+}
+</style>
+</head>
+
+<body>
+<div style="display:none">
+  <video id="videoid">
+    <source src="video.mp4" type="video/mp4">
+  </video>
+</div>
+
+<div class="box">
+  <canvas id="canvas00" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas01" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas02" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas03" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+</div>
+
+<div class="box">
+  <canvas id="canvas10" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas11" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas12" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas13" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+</div>
+
+<div class="box">
+  <canvas id="canvas20" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas21" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas22" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+  <canvas id="canvas23" width="160" height="120" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"></canvas>
+</div>
+
+<br> <br>
+
+<div>
+	<button onclick="PlayPaused()">Play/Pause</button>
+	
+</div>
+
+<br> <br>
+
+<div>
+
+	<button onclick="update2(video)"> Restore </button>
+
+</div>
+
+<script>
+	var ROWS = 3;
+    var COLS = 4;
+    var tile_array = new Array();
+	
+
+    for(var ri = 0; ri < ROWS; ri++) {
+      for(var ci = 0; ci < COLS; ci++) {
+        tile_array.push("tile"+ri+ci);
+				
+      }
+    }   
+		
+	var video = document.getElementById("videoid");
+    update(video);
+	
+	function update2(video) {
+      for(var i = 0; i < tile_array.length-1; i++){
+          for(var j = i+1; j < tile_array.length; j++){
+              var ri = tile_array[i][4];
+              var ci = tile_array[i][5];
+              var rj = tile_array[j][4];
+              var cj = tile_array[j][5];
+              if(rj < ri || (rj == ri && cj < ci)){
+                  var temp = tile_array[i];
+                  tile_array[i] = tile_array[j];
+                  tile_array[j] = temp;
+              }
+          }
+      }
+	}
+	
+  
+    function update(video) {
+      drawtiles(640, 360, ROWS, COLS, video);
+      setTimeout(function(){ 
+  	  	update(video)
+    	}, 33);
+    }
+	
+	function PlayPaused() {
+		if(video.paused) {
+            video.play();
+        }else{
+		    video.pause();
+        }
+	}
+	
+
+    function drawtiles(w, h, r, c, source) {
+        var tileW = Math.round(w / c);
+        var tileH = Math.round(h / r);
+
+        for(var ri = 0; ri < r; ri++) {
+          for(var ci = 0; ci < c; ci++) {
+                var target_ri = parseInt(tile_array[ri*COLS+ci][4]); //Here is to extract the row number in "tilerc" where r and c are row number and column number. All the row numbers are located at the 4th position. Refer to line 61.
+                var target_ci = parseInt(tile_array[ri*COLS+ci][5]);
+                
+				var thecanvas = document.getElementById("canvas"+ri+ci);
+				context = thecanvas.getContext('2d');
+
+				context.drawImage(source, target_ci*tileW, target_ri*tileH, tileW, tileH, 0, 0, 160, 120);
+          }
+        }   
+    }
+
+    function drag(ev){
+      ev.dataTransfer.setData("Text",ev.target.id); 
+    }
+	
+	function allowDrop(ev) { 
+		ev.preventDefault();  
+	} 
+	
+    function drop(ev){
+      event.preventDefault();
+	  
+      var current_ri = parseInt(ev.dataTransfer.getData("text")[6]);
+      var current_ci = parseInt(ev.dataTransfer.getData("text")[7]);
+
+      var target_ri = parseInt(ev.target.id[6]);
+      var target_ci = parseInt(ev.target.id[7]);
+
+      var index_current_id = current_ri*COLS + current_ci;
+      var index_drop_id = target_ri*COLS+target_ci;
+
+      var temp = tile_array[index_current_id];
+      tile_array[index_current_id] = tile_array[index_drop_id];
+      tile_array[index_drop_id] = temp;
+    }
+	
+</script>
+</body>
+</html>
